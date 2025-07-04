@@ -1,4 +1,4 @@
-use crate::map::TILE_SIZE;
+use crate::map::{MAP, MAP_HEIGHT, MAP_WIDTH, TILE_SIZE};
 use macroquad::prelude::*;
 
 pub struct Player {
@@ -16,19 +16,35 @@ impl Player {
         let move_speed = 100.0 * get_frame_time();
         let rot_speed = 2.0 * get_frame_time();
 
+        let mut new_x = self.x;
+        let mut new_y = self.y;
+
         if is_key_down(KeyCode::W) {
-            self.x += self.angle.cos() * move_speed;
-            self.y += self.angle.sin() * move_speed;
+            new_x += self.angle.cos() * move_speed;
+            new_y += self.angle.sin() * move_speed;
         }
         if is_key_down(KeyCode::S) {
-            self.x -= self.angle.cos() * move_speed;
-            self.y -= self.angle.sin() * move_speed;
+            new_x -= self.angle.cos() * move_speed;
+            new_y -= self.angle.sin() * move_speed;
         }
         if is_key_down(KeyCode::A) {
             self.angle -= rot_speed;
         }
         if is_key_down(KeyCode::D) {
             self.angle += rot_speed;
+        }
+
+        // коллизия запомни
+        let tile_x = (new_x / TILE_SIZE) as usize;
+        let tile_y = (self.y / TILE_SIZE) as usize;
+        if MAP[tile_y][tile_x] == 0 {
+            self.x = new_x;
+        }
+
+        let tile_x = (self.x / TILE_SIZE) as usize;
+        let tile_y = (new_y / TILE_SIZE) as usize;
+        if MAP[tile_y][tile_x] == 0 {
+            self.y = new_y;
         }
     }
 }
